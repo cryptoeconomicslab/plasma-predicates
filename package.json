@@ -1,0 +1,19 @@
+{
+  "name": "@cryptoeconomicslab/plasma-predicates",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "truffle compile",
+    "test": "truffle test"
+  },
+  "author": {
+    "name": "Cryptoeconomics Lab",
+    "url": "https://www.cryptoeconomicslab.com/"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ethers": "^4.0.27",
+    "truffle": "^5.0.13"
+  }
+}
