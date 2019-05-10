@@ -41,33 +41,38 @@ def __init__(
 @public
 @constant
 def decode_state_update(
-  stateBytes: bytes[256]
+  state_update: bytes[256]
 ) -> (uint256, uint256, uint256):
-  # assert self == extract32(stateBytes, 0, type=address)
-  return (
-    extract32(stateBytes, 32*1, type=uint256),  # blkNum
-    extract32(stateBytes, 32*2, type=uint256),   # start
-    extract32(stateBytes, 32*3, type=uint256)   # end
-  )
+  values = RLPList(state_update, [address, uint256, uint256, uint256])
+  return (values[1], values[2], values[3])
 
 @public
 @constant
 def decode_ownership_state(
-  stateBytes: bytes[256]
-) -> (address):
-  return (
-    extract32(stateBytes, 32*4, type=address)   # owner
-  )
+  state_update: bytes[256]
+) -> address:
+  values = RLPList(state_update, [address, uint256, uint256, uint256, address])
+  return values[4]
+
+@public
+@constant
+def decode_deprecation_witness(
+  deprecation_witness: bytes[600]
+) -> (bytes[256], bytes[65], bytes[512]):
+  values = RLPList(deprecation_witness, [bytes, bytes, bytes])
+  next_state_update: bytes[256] = slice(values[0], start=0, len=256)
+  signatures: bytes[65] = slice(values[1], start=0, len=65)
+  inclusion_witness: bytes[512] = slice(values[2], start=0, len=512)
+  return (next_state_update, signatures, inclusion_witness)
 
 @public
 @constant
 def can_initiate_exit(
   state_update: bytes[256],
-  initiation_witness: bytes[512],
-  exit_owner: address
+  initiation_witness: address
 ) -> (bool):
   owner: address = self.decode_ownership_state(state_update)
-  assert exit_owner == owner
+  assert initiation_witness == owner
   return True
 
 @public
@@ -76,14 +81,17 @@ def verify_deprecation(
   state_id: uint256,
   state_update: bytes[256],
   # next_state_update should be multiple state_updates
-  next_state_update: bytes[256],
-  deprecation_witness: bytes[65],
-  inclusion_witness: bytes[512]
+  # deprecation_witness will be RLP structure in production
+  deprecation_witness: bytes[600]
 ) -> (bool):
   exit_segment: uint256
   block_number: uint256
   start: uint256
   end: uint256
+  next_state_update: bytes[256]
+  signatures: bytes[65]
+  inclusion_witness: bytes[512]
+  (next_state_update, signatures, inclusion_witness) = self.decode_deprecation_witness(deprecation_witness)
   transaction_hash: bytes32 = sha3(next_state_update)
   exit_owner: address = self.decode_ownership_state(state_update)
   (block_number, start, end) = self.decode_state_update(next_state_update)
@@ -93,7 +101,7 @@ def verify_deprecation(
     self.plasma_chain,
     inclusion_witness
   )
-  assert PredicateUtils(self.predicate_utils).ecrecover_sig(transaction_hash, deprecation_witness, 0) == exit_owner
+  assert PredicateUtils(self.predicate_utils).ecrecover_sig(transaction_hash, signatures, 0) == exit_owner
   return True
 
 @public
