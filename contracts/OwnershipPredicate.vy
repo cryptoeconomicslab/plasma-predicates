@@ -116,3 +116,10 @@ def finalize_exit(
   exit_owner = self.decode_ownership_state(state_update)
   # TODO: get token_id
   send(exit_owner, as_wei_value(end - start, "gwei"))
+
+@public
+@constant
+def get_additional_lockup(
+  state_update: bytes[256]
+) -> uint256:
+  return 0
