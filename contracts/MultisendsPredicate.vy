@@ -26,6 +26,7 @@ contract ERC20:
 commitment_chain: public(address)
 plasma_chain: public(address)
 predicate_utils: public(address)
+# This map presents for changing ownership is succeeded or failed.
 state_updates: public(map(bytes32, bool))
 
 ZERO_HASH: constant(bytes32) = sha3(b'0')
