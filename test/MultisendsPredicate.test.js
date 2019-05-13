@@ -1,13 +1,13 @@
 const PredicateUtils = artifacts.require('PredicateUtils')
 const CommitmentChain = artifacts.require('CommitmentChain')
 const PlasmaChain = artifacts.require('PlasmaChain')
-const OwnershipPredicate = artifacts.require('OwnershipPredicate')
+const MultisendsPredicate = artifacts.require('MultisendsPredicate')
 const { constants, utils } = require('ethers')
 const { deployRLPdecoder } = require('./helpers/deployRLPdecoder')
 const { justSign } = require('./helpers/sign')
 const RLP = utils.RLP
 
-contract('OwnershipPredicate', accounts => {
+contract('MultisendsPredicate', accounts => {
   const Account1PrivKey =
     '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
 
@@ -16,7 +16,7 @@ contract('OwnershipPredicate', accounts => {
     this.predicateUtils = await PredicateUtils.new()
     this.commitmentChain = await CommitmentChain.new()
     this.plasmaChain = await PlasmaChain.new(this.commitmentChain.address)
-    this.ownershipPredicate = await OwnershipPredicate.new(
+    this.multisendsPredicate = await MultisendsPredicate.new(
       this.commitmentChain.address,
       this.plasmaChain.address,
       this.predicateUtils.address
@@ -30,9 +30,11 @@ contract('OwnershipPredicate', accounts => {
         constants.Zero,
         utils.bigNumberify(0),
         utils.bigNumberify(10000),
-        accounts[0]
+        accounts[0],
+        accounts[1],
+        constants.HashZero
       ])
-      const canInitiateExit = await this.ownershipPredicate.can_initiate_exit(
+      const canInitiateExit = await this.multisendsPredicate.can_initiate_exit(
         stateUpdate,
         justSign(Account1PrivKey, utils.keccak256(stateUpdate)),
         {
