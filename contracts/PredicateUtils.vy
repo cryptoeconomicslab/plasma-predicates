@@ -1,11 +1,7 @@
-# from https://github.com/cryptoeconomicslab/plasma-chamber/tree/master/packages/contracts/contracts/library
-
-MASK8BYTES: constant(uint256) = 2**64 - 1
-
 # @dev from https://github.com/LayerXcom/plasma-mvp-vyper
 @public
 @constant
-def ecrecoverSig(_txHash: bytes32, _sig: bytes[260], index: int128) -> address:
+def ecrecover_sig(_txHash: bytes32, _sig: bytes[260], index: int128) -> address:
   if len(_sig) % 65 != 0:
     return ZERO_ADDRESS
   # ref. https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d

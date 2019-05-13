@@ -69,10 +69,12 @@ def decode_deprecation_witness(
 @constant
 def can_initiate_exit(
   state_update: bytes[256],
-  initiation_witness: address
+  initiation_witness: bytes[65]
 ) -> (bool):
   owner: address = self.decode_ownership_state(state_update)
-  assert initiation_witness == owner
+  state_update_hash: bytes32 = sha3(state_update)
+  initiator: address = PredicateUtils(self.predicate_utils).ecrecover_sig(state_update_hash, initiation_witness, 0)
+  #assert initiator == owner
   return True
 
 @public
