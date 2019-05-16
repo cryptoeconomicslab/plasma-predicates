@@ -1,7 +1,7 @@
 #
 # Library
 #
-# OwnershipPredicate.vy
+# MultisendsPredicate.vy
 #   This is predicate sample for Plasma.
 #
 
