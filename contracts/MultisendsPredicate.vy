@@ -70,10 +70,10 @@ def decode_deprecation_witness(
   values = RLPList(deprecation_witness, [bytes, bytes, bytes, bytes, bytes])
   return (
     slice(values[0], start=0, len=256),
-    slice(values[0], start=0, len=512),
+    slice(values[1], start=0, len=512),
     slice(values[2], start=0, len=65),
     slice(values[3], start=0, len=256),
-    slice(values[0], start=0, len=512))
+    slice(values[4], start=0, len=512))
 
 @public
 @constant
