@@ -1,3 +1,5 @@
+const CoverageSubprovider = require('contract-coverager')
+const engine = CoverageSubprovider.injectInTruffle(artifacts, web3)
 const PredicateUtils = artifacts.require('PredicateUtils')
 const CommitmentChain = artifacts.require('CommitmentChain')
 const PlasmaChain = artifacts.require('PlasmaChain')
@@ -10,6 +12,8 @@ const RLP = utils.RLP
 contract('MultisendsPredicate', accounts => {
   const Account1PrivKey =
     '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
+  before(() => engine.start())
+  after(() => engine.stop())
 
   beforeEach(async () => {
     await deployRLPdecoder(accounts[0])
