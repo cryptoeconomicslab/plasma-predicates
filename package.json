@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "truffle compile",
-    "test": "truffle test"
+    "test": "npm run build && truffle test"
   },
   "author": {
     "name": "Cryptoeconomics Lab",
