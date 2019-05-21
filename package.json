@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "truffle compile",
-    "test": "truffle test"
+    "test": "npm run build && truffle test"
   },
   "author": {
     "name": "Cryptoeconomics Lab",
@@ -13,6 +13,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "contract-coverager": "^0.3.1",
     "ethereumjs-util": "^6.1.0",
     "ethers": "^4.0.27",
     "truffle": "^5.0.13"
