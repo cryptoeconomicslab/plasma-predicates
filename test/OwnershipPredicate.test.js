@@ -1,6 +1,7 @@
 const CoverageSubprovider = require('contract-coverager')
 const engine = CoverageSubprovider.injectInTruffle(artifacts, web3)
 const PredicateUtils = artifacts.require('PredicateUtils')
+const StateUpdateEncoder = artifacts.require('StateUpdateEncoder')
 const CommitmentChain = artifacts.require('CommitmentChain')
 const PlasmaChain = artifacts.require('PlasmaChain')
 const OwnershipPredicate = artifacts.require('OwnershipPredicate')
@@ -17,26 +18,26 @@ contract('OwnershipPredicate', accounts => {
 
   beforeEach(async () => {
     await deployRLPdecoder(accounts[0])
+    this.stateUpdateEncoder = await StateUpdateEncoder.new()
     this.predicateUtils = await PredicateUtils.new()
     this.commitmentChain = await CommitmentChain.new()
     this.plasmaChain = await PlasmaChain.new(this.commitmentChain.address)
     this.ownershipPredicate = await OwnershipPredicate.new(
       this.commitmentChain.address,
       this.plasmaChain.address,
-      this.predicateUtils.address
+      this.predicateUtils.address,
+      this.stateUpdateEncoder.address
     )
   })
 
-  describe('can_initiate_exit', () => {
-    it('succeed to can_initiate_exit', async () => {
+  describe('canStartExitGame', () => {
+    it('succeed to canStartExitGame', async () => {
       const stateUpdate = RLP.encode([
+        concat([numTo32bytes(0), numTo32bytes(10000)]),
         constants.AddressZero,
-        constants.Zero,
-        utils.bigNumberify(0),
-        utils.bigNumberify(10000),
         accounts[0]
       ])
-      const canInitiateExit = await this.ownershipPredicate.can_initiate_exit(
+      const canInitiateExit = await this.ownershipPredicate.canStartExitGame(
         stateUpdate,
         justSign(Account1PrivKey, utils.keccak256(stateUpdate)),
         {
@@ -46,4 +47,43 @@ contract('OwnershipPredicate', accounts => {
       assert.isTrue(canInitiateExit)
     })
   })
+
+  describe('executeStateTransition', () => {
+    it('succeed to executeStateTransition', async () => {
+      const stateUpdate = RLP.encode([
+        concat([numTo32bytes(0), numTo32bytes(10000)]),
+        this.ownershipPredicate.address,
+        accounts[0]
+      ])
+      const newStateUpdate = RLP.encode([
+        concat([numTo32bytes(0), numTo32bytes(10000)]),
+        this.ownershipPredicate.address,
+        accounts[1]
+      ])
+      const methodId = utils.keccak256(utils.toUtf8Bytes('send(address)'))
+      const transaction = RLP.encode([
+        concat([numTo32bytes(0), numTo32bytes(10000)]),
+        methodId,
+        accounts[1]
+      ])
+      const witness = justSign(Account1PrivKey, utils.keccak256(transaction))
+
+      const newStateUpdateResult = await this.ownershipPredicate.executeStateTransition(
+        stateUpdate,
+        RLP.encode([transaction, witness]),
+        {
+          from: accounts[0]
+        }
+      )
+      assert.equal(newStateUpdate, newStateUpdateResult)
+    })
+  })
 })
+
+function concat(arr) {
+  return utils.hexlify(utils.concat(arr.map(h => utils.arrayify(h))))
+}
+
+function numTo32bytes(n) {
+  return utils.hexZeroPad(utils.hexlify(utils.bigNumberify(n)), 32)
+}
