@@ -1,6 +1,7 @@
 const CoverageSubprovider = require('contract-coverager')
 const engine = CoverageSubprovider.injectInTruffle(artifacts, web3)
 const PredicateUtils = artifacts.require('PredicateUtils')
+const StateUpdateEncoder = artifacts.require('StateUpdateEncoder')
 const CommitmentChain = artifacts.require('CommitmentChain')
 const PlasmaChain = artifacts.require('PlasmaChain')
 const MultisendsPredicate = artifacts.require('MultisendsPredicate')
@@ -17,6 +18,7 @@ contract('MultisendsPredicate', accounts => {
 
   beforeEach(async () => {
     await deployRLPdecoder(accounts[0])
+    this.stateUpdateEncoder = await StateUpdateEncoder.new()
     this.predicateUtils = await PredicateUtils.new()
     this.commitmentChain = await CommitmentChain.new()
     this.plasmaChain = await PlasmaChain.new(this.commitmentChain.address)
