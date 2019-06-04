@@ -1,6 +1,6 @@
 const PredicateUtils = artifacts.require('PredicateUtils')
 const StateUpdateEncoder = artifacts.require('StateUpdateEncoder')
-const OwnershipPredicate = artifacts.require('OwnershipPredicateVy')
+const OwnershipPredicate = artifacts.require('OwnershipPredicate')
 const CommitmentChain = artifacts.require('CommitmentChain')
 const PlasmaChain = artifacts.require('PlasmaChain')
 
