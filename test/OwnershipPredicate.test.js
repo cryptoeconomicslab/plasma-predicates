@@ -56,11 +56,24 @@ contract('OwnershipPredicate', accounts => {
   })
   */
 
-  describe('executeStateTransition', () => {
-    it('succeed to executeStateTransition', async () => {
-      const stateObject = [this.ownershipPredicate.address, accounts[0]]
+  describe('verifyTransaction', () => {
+    it('succeed to verifyTransaction', async () => {
+      const stateObject = [
+        this.ownershipPredicate.address,
+        abi.encode(['address'], [accounts[0]])
+      ]
       const stateUpdate = [stateObject, 0, 10000, 10, this.plasmaChain.address]
-      const newStateObject = [this.ownershipPredicate.address, accounts[1]]
+      const newStateObject = [
+        this.ownershipPredicate.address,
+        abi.encode(['address'], [accounts[1]])
+      ]
+      const newStateUpdate = [
+        newStateObject,
+        0,
+        10000,
+        10,
+        this.plasmaChain.address
+      ]
 
       const methodId = utils.hexDataSlice(
         utils.keccak256(utils.toUtf8Bytes('send(address)')),
@@ -93,22 +106,16 @@ contract('OwnershipPredicate', accounts => {
       const signature = key.signDigest(txHash)
       const witness = [signature.r, signature.s, signature.v]
 
-      const newStateUpdateResult = await this.ownershipPredicate.executeStateTransition.call(
+      const newStateUpdateResult = await this.ownershipPredicate.verifyTransaction.call(
         stateUpdate,
         transaction,
         witness,
+        newStateUpdate,
         {
           from: accounts[0]
         }
       )
-      assert.equal(
-        newStateObject[0],
-        newStateUpdateResult.stateObject.predicateAddress
-      )
-      assert.equal(
-        newStateObject[1],
-        utils.getAddress(newStateUpdateResult.stateObject.data)
-      )
+      assert.equal(newStateUpdateResult, true)
     })
   })
 })
