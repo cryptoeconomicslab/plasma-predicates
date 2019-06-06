@@ -16,6 +16,7 @@
     "contract-coverager": "^0.3.1",
     "ethereumjs-util": "^6.1.0",
     "ethers": "^4.0.27",
+    "openzeppelin-solidity": "^2.3.0",
     "truffle": "^5.0.13"
   }
 }
