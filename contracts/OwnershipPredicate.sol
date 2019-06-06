@@ -1,6 +1,7 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 
 /**
@@ -86,6 +87,14 @@ contract OwnershipPredicate {
     // return abi.decode(_stateUpdate.stateObject.data, (address));
     //require(signer == abi.decode(_stateUpdate.stateObject.data, (address)));
     return true;
+  }
+  
+  function onFinalizeExit(
+    address owner,
+    address ERC20Contract,
+    uint256 amount
+  ) internal {
+    ERC20(ERC20Contract).transfer(owner, amount);    
   }
 
   function ecverify(
