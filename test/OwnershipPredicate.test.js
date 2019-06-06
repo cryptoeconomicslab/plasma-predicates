@@ -56,13 +56,14 @@ contract('OwnershipPredicate', accounts => {
   })
   */
 
-  describe('verifyTransaction', () => {
-    it('succeed to verifyTransaction', async () => {
+  describe('proveExitDeprecation', () => {
+    it('succeed to proveExitDeprecation', async () => {
       const stateObject = [
         this.ownershipPredicate.address,
         abi.encode(['address'], [accounts[0]])
       ]
       const stateUpdate = [stateObject, 0, 10000, 10, this.plasmaChain.address]
+      const deprecatedExit = [stateUpdate, 0, 10000]
       const newStateObject = [
         this.ownershipPredicate.address,
         abi.encode(['address'], [accounts[1]])
@@ -106,8 +107,8 @@ contract('OwnershipPredicate', accounts => {
       const signature = key.signDigest(txHash)
       const witness = [signature.r, signature.s, signature.v]
 
-      const newStateUpdateResult = await this.ownershipPredicate.verifyTransaction.call(
-        stateUpdate,
+      await this.ownershipPredicate.proveExitDeprecation(
+        deprecatedExit,
         transaction,
         witness,
         newStateUpdate,
@@ -115,7 +116,6 @@ contract('OwnershipPredicate', accounts => {
           from: accounts[0]
         }
       )
-      assert.equal(newStateUpdateResult, true)
     })
   })
 })
