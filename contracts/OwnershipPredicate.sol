@@ -1,10 +1,13 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
+import "openzeppelin-solidity/contracts/math/Math.sol";
+
 /**
  * @title OwnershipPredicate
  */
 contract OwnershipPredicate {
+  using Math for uint256;
 
   struct StateObject {
     address predicateAddress;
@@ -17,6 +20,12 @@ contract OwnershipPredicate {
     uint256 end;
     uint256 plasmaBlockNumber;
     address plasmaContract;
+  }
+
+  struct Checkpoint {
+    StateUpdate stateUpdate;
+    uint256 start;
+    uint256 end;
   }
 
   struct Transaction {
@@ -33,10 +42,31 @@ contract OwnershipPredicate {
     uint8 v;
   }
 
+  function intersect(uint256 start1, uint256 end1, uint256 start2, uint256 end2) private pure returns (bool) {
+    uint256 max_start = Math.max(start1, start2);
+    uint256 max_end = Math.min(end1, end2);
+    return max_start < max_end;
+  }
+
   function bytesToAddress(bytes memory bys) private pure returns (address addr) {
     assembly {
       addr := mload(add(bys,20))
     }
+  }
+
+  function proveExitDeprecation(
+    Checkpoint memory _deprecatedExit,
+    Transaction memory _transaction,
+    Witness memory _witness,
+    StateUpdate memory _postState
+  ) public {
+    // check valid transaction or not
+    require(verifyTransaction(_deprecatedExit.stateUpdate, _transaction, _witness, _postState), "can't verify");
+    // check intersect or not
+    require(intersect(_postState.start, _postState.end, _deprecatedExit.start, _deprecatedExit.end), "doesn't intersect");
+    // call deprecateExit
+    address plasmaContractAddress = _deprecatedExit.stateUpdate.plasmaContract;
+    // deprecateExit(_deprecatedExit)
   }
 
   function verifyTransaction(
