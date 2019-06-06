@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "../library/PlasmaModel.sol";
 
+// This contract is following pigi spec
+// https://docs.plasma.group/en/latest/
 contract TransactionStandard {
   function intersect(uint256 start1, uint256 end1, uint256 start2, uint256 end2) private pure returns (bool) {
     uint256 max_start = Math.max(start1, start2);
