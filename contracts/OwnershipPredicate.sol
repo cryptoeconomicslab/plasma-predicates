@@ -2,13 +2,15 @@ pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
 import "./library/PlasmaModel.sol";
-import "./standard/TransactionStandard.sol";
+import "./standard/LimboExitStandard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title OwnershipPredicate
+ * @dev simple ownership
+ *     description is https://docs.plasma.group/projects/spec/en/latest/src/07-predicates/simple-ownership.html 
  */
-contract OwnershipPredicate is TransactionStandard {
+contract OwnershipPredicate is LimboExitStandard {
 
   function bytesToAddress(bytes memory bys) private pure returns (address addr) {
     assembly {
@@ -31,10 +33,21 @@ contract OwnershipPredicate is TransactionStandard {
     bytes32 txHash = keccak256(abi.encode(_transaction));
     address signer = ecverify(txHash, witness);
     // return abi.decode(_stateUpdate.stateObject.data, (address));
-    //require(signer == abi.decode(_stateUpdate.stateObject.data, (address)));
+    // require(signer == abi.decode(_stateUpdate.stateObject.data, (address)));
     return true;
   }
-  
+
+  function canReturnLimboExit(
+    PlasmaModel.Checkpoint memory _limboSource,
+    PlasmaModel.StateUpdate memory _limboTarget,
+    PlasmaModel.Witness memory _witness
+  ) public returns (bool) {
+    bytes32 limboTx = keccak256(abi.encodePacked(abi.encode(_limboSource), abi.encode(_limboTarget)));
+    address signer = ecverify(limboTx, _witness);
+    address owner = abi.decode(_limboTarget.stateObject.data, (address));
+    // require(signer == owner, "require owner's permission");
+  }
+
   function onFinalizeExit(
     address owner,
     address ERC20Contract,

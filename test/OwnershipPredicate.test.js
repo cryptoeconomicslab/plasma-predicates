@@ -36,63 +36,61 @@ contract('OwnershipPredicate', accounts => {
     )
   })
 
-  /*
-  describe('canStartExitGame', () => {
-    it('succeed to canStartExitGame', async () => {
-      const stateUpdate = RLP.encode([
-        concat([numTo32bytes(0), numTo32bytes(10000)]),
-        constants.AddressZero,
-        accounts[0]
-      ])
-      const canInitiateExit = await this.ownershipPredicate.canStartExitGame(
-        stateUpdate,
-        justSign(Account1PrivKey, utils.keccak256(stateUpdate)),
+  /// Alice transfer range to Bob
+  const alice = accounts[0]
+  const bob = accounts[1]
+
+  function getOwnerStateUpdate(predicate, plasmaChain) {
+    const stateObject = [predicate, abi.encode(['address'], [alice])]
+    const stateUpdate = [stateObject, 0, 10000, 10, plasmaChain]
+    return stateUpdate
+  }
+
+  function getParameters(nextStateObject) {
+    // parameters include bobStateObject, originBlock and maxBlock
+    return abi.encode(
+      [
         {
-          from: accounts[0]
-        }
-      )
-      assert.isTrue(canInitiateExit)
-    })
-  })
-  */
+          type: 'tuple',
+          components: [{ type: 'address' }, { type: 'bytes' }]
+        },
+        'uint64',
+        'uint64'
+      ],
+      [nextStateObject, 10, 20]
+    )
+  }
+
+  function createWitness(txHash, privKey) {
+    const key = new utils.SigningKey(privKey)
+    const signature = key.signDigest(txHash)
+    return [signature.r, signature.s, signature.v]
+  }
 
   describe('proveExitDeprecation', () => {
     it('succeed to proveExitDeprecation', async () => {
-      const stateObject = [
+      const stateUpdate = getOwnerStateUpdate(
         this.ownershipPredicate.address,
-        abi.encode(['address'], [accounts[0]])
-      ]
-      const stateUpdate = [stateObject, 0, 10000, 10, this.plasmaChain.address]
-      const deprecatedExit = [stateUpdate, 0, 10000]
-      const newStateObject = [
+        this.plasmaChain.address
+      )
+      const bobStateObject = [
         this.ownershipPredicate.address,
-        abi.encode(['address'], [accounts[1]])
+        abi.encode(['address'], [bob])
       ]
-      const newStateUpdate = [
-        newStateObject,
+      const bobStateUpdate = [
+        bobStateObject,
         0,
         10000,
         10,
         this.plasmaChain.address
       ]
-
       const methodId = utils.hexDataSlice(
         utils.keccak256(utils.toUtf8Bytes('send(address)')),
         0,
         1
       )
-      // newStateObject, originBlock, maxBlock
-      const parameters = abi.encode(
-        [
-          {
-            type: 'tuple',
-            components: [{ type: 'address' }, { type: 'bytes' }]
-          },
-          'uint64',
-          'uint64'
-        ],
-        [newStateObject, 10, 20]
-      )
+      // parameters include bobStateObject, originBlock and maxBlock
+      const parameters = getParameters(bobStateObject)
       const transaction = [
         this.plasmaChain.address,
         0,
@@ -100,18 +98,67 @@ contract('OwnershipPredicate', accounts => {
         methodId,
         parameters
       ]
+
+      const deprecatedExit = [stateUpdate, 0, 10000]
       const txHash = utils.keccak256(
         abi.encode(transactionAbiTypes, transaction)
       )
-      const key = new utils.SigningKey(Account1PrivKey)
-      const signature = key.signDigest(txHash)
-      const witness = [signature.r, signature.s, signature.v]
+      const witness = createWitness(txHash, Account1PrivKey)
 
       await this.ownershipPredicate.proveExitDeprecation(
         deprecatedExit,
         transaction,
         witness,
-        newStateUpdate,
+        bobStateUpdate,
+        {
+          from: accounts[0]
+        }
+      )
+    })
+  })
+
+  describe('targetLimboExit', () => {
+    it('succeed to targetLimboExit', async () => {
+      const stateUpdate = getOwnerStateUpdate(
+        this.ownershipPredicate.address,
+        this.plasmaChain.address
+      )
+      const sourceExit = [stateUpdate, 0, 10000]
+      const bobStateObject = [
+        this.ownershipPredicate.address,
+        abi.encode(['address'], [bob])
+      ]
+      const limboTarget = [
+        bobStateObject,
+        0,
+        10000,
+        10,
+        this.plasmaChain.address
+      ]
+      const methodId = utils.hexDataSlice(
+        utils.keccak256(utils.toUtf8Bytes('send(address)')),
+        0,
+        1
+      )
+      const parameters = getParameters(bobStateObject)
+      const transaction = [
+        this.plasmaChain.address,
+        0,
+        10000,
+        methodId,
+        parameters
+      ]
+
+      const txHash = utils.keccak256(
+        abi.encode(transactionAbiTypes, transaction)
+      )
+      const witness = createWitness(txHash, Account1PrivKey)
+
+      await this.ownershipPredicate.targetLimboExit(
+        sourceExit,
+        transaction,
+        witness,
+        limboTarget,
         {
           from: accounts[0]
         }
