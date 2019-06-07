@@ -19,7 +19,7 @@ library PlasmaModel {
     uint256 start;
     uint256 end;
   }
-  
+
   struct Transaction {
     address plasmaContract;
     uint256 start;
