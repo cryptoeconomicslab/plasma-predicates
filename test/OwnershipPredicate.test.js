@@ -26,6 +26,9 @@ contract('OwnershipPredicate', accounts => {
   ]
   const witnessAbiTypes = ['bytes32', 'bytes32', 'bytes1']
 
+  before(() => engine.start())
+  after(() => engine.stop())
+
   beforeEach(async () => {
     await deployRLPdecoder(accounts[0])
     this.commitmentChain = await CommitmentChain.new()

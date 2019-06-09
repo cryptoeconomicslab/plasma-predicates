@@ -22,14 +22,7 @@ contract MultisendsPredicate is LimboExitStandard {
       addr := mload(add(bys,20))
     }
   }
-
-  function getHash(
-    PlasmaModel.Checkpoint memory _exit
-   ) public returns (bytes memory) {
-    PlasmaModel.StateUpdate memory stateUpdate = _exit.stateUpdate;
-    return abi.encode(stateUpdate);
-  }
-
+  
   function finalizeCounterExit(
     PlasmaModel.Checkpoint memory _exit
    ) public {

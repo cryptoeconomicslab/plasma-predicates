@@ -10,6 +10,11 @@ const { deployRLPdecoder } = require('./helpers/deployRLPdecoder')
 const { justSign } = require('./helpers/sign')
 const abi = new utils.AbiCoder()
 
+/*
+0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000027100000000000000000000000000000000000000000000000000000000000004e20000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000f204a4ef082f5c04bb89f7d5e6568b796096735a00000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eed00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732
+0x00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000027100000000000000000000000000000000000000000000000000000000000004e20000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000f204a4ef082f5c04bb89f7d5e6568b796096735a00000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eed00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732
+*/
+
 contract('MultisendsPredicate', accounts => {
   const Account1PrivKey =
     '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
@@ -18,11 +23,7 @@ contract('MultisendsPredicate', accounts => {
   const transactionAbiTypes = ['address', 'uint64', 'uint64', 'bytes1', 'bytes']
   const stateObjectAbiTypes = ['address', 'bytes']
   const stateUpdateAbiTypes = [
-    { type: 'tuple', components: [{ type: 'address' }, { type: 'bytes' }] },
-    'uint64',
-    'uint64',
-    'uint64',
-    'address'
+    'tuple(tuple(address predicateAddress, bytes data) stateObject, uint64 start, uint64 end, uint64 plasmaBlockNumber, address plasmaContract)'
   ]
   const witnessAbiTypes = ['bytes32', 'bytes32', 'bytes1']
 
@@ -98,9 +99,9 @@ contract('MultisendsPredicate', accounts => {
       )
       const counterStateUpdate = [
         counterStateObject,
-        10000,
-        20000,
-        10,
+        1,
+        2,
+        3,
         this.plasmaChain.address
       ]
       const methodId = utils.hexDataSlice(
@@ -109,7 +110,7 @@ contract('MultisendsPredicate', accounts => {
         1
       )
       const counterHash = utils.keccak256(
-        abi.encode(stateUpdateAbiTypes, counterStateUpdate)
+        abi.encode(stateUpdateAbiTypes, [counterStateUpdate])
       )
       const parameters = getParameters(stateObject, newStateObject, counterHash)
       const transaction = [
@@ -127,8 +128,6 @@ contract('MultisendsPredicate', accounts => {
       )
       const witness = createWitness(txHash, Account1PrivKey)
 
-      //      console.log(await this.multisendsPredicate.getHash.call(counterExit))
-      //      console.log(abi.encode(stateUpdateAbiTypes, counterStateUpdate))
       await this.multisendsPredicate.finalizeCounterExit(counterExit)
       await this.multisendsPredicate.proveExitDeprecation(
         deprecatedExit,
