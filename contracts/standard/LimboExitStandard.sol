@@ -45,6 +45,7 @@ contract LimboExitStandard {
     PlasmaModel.Witness memory witness,
     PlasmaModel.StateUpdate memory _postState
   ) internal returns (bool) {
+    revert("not inplemented");
     return false;
   }
 
@@ -116,6 +117,7 @@ contract LimboExitStandard {
     require(verifyTransaction(_limboTarget, _conflictingTransaction, _conflictingWitness, _conflictingPostState), "can't verify");
     require(hashOfState(_limboTarget.stateObject) != hashOfState(_conflictingPostState.stateObject), "not conflicted state");
     // call deprecateExit(_limboTarget)
+    limboTargets[keccak256(abi.encode(_limboSource))].targetId = 0;
   }
 
   function canReturnLimboExit(
