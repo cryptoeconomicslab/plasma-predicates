@@ -1,7 +1,6 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
-import "./library/PlasmaModel.sol";
 import "./standard/LimboExitStandard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
@@ -24,20 +23,20 @@ contract MultisendsPredicate is LimboExitStandard {
   }
   
   function finalizeCounterExit(
-    PlasmaModel.Checkpoint memory _exit
+    types.Checkpoint memory _exit
    ) public {
-    PlasmaModel.StateUpdate memory stateUpdate = _exit.stateUpdate;
+    types.StateUpdate memory stateUpdate = _exit.stateUpdate;
     counterStateUpdates[keccak256(abi.encode(stateUpdate))] = true;
     // call plasmaChain.finalizeExit()
   }
 
   function verifyTransaction(
-    PlasmaModel.StateUpdate memory _preState,
-    PlasmaModel.Transaction memory _transaction,
-    PlasmaModel.Witness memory witness,
-    PlasmaModel.StateUpdate memory _postState
+    types.StateUpdate memory _preState,
+    types.Transaction memory _transaction,
+    types.Witness memory witness,
+    types.StateUpdate memory _postState
   ) internal returns (bool) {
-    (PlasmaModel.StateObject memory preStateObject, PlasmaModel.StateObject memory newStateObject, bytes32 counterStateUpdateHash) = abi.decode(_transaction.parameters, (PlasmaModel.StateObject, PlasmaModel.StateObject, bytes32));
+    (types.StateObject memory preStateObject, types.StateObject memory newStateObject, bytes32 counterStateUpdateHash) = abi.decode(_transaction.body, (types.StateObject, types.StateObject, bytes32));
     if (counterStateUpdates[counterStateUpdateHash]) {
       // call finalize Exit
       require(
@@ -48,8 +47,8 @@ contract MultisendsPredicate is LimboExitStandard {
         keccak256(abi.encode(_postState.stateObject)) == keccak256(abi.encode(preStateObject)),
         "invalid state object");
     }
-    require(_postState.start == _transaction.start, "invalid start");
-    require(_postState.end == _transaction.end, "invalid end");
+    require(_postState.range.start == _transaction.range.start, "invalid start");
+    require(_postState.range.end == _transaction.range.end, "invalid end");
     // require(_preState.plasmaBlockNumber <= originBlock, "pre state block number is too new");
     // require(_postState.plasmaBlockNumber <= maxBlock, "post state block number is too new");
     bytes32 txHash = keccak256(abi.encode(_transaction));
@@ -60,9 +59,9 @@ contract MultisendsPredicate is LimboExitStandard {
   }
 
   function canReturnLimboExit(
-    PlasmaModel.Checkpoint memory _limboSource,
-    PlasmaModel.StateUpdate memory _limboTarget,
-    PlasmaModel.Witness memory _witness
+    types.Checkpoint memory _limboSource,
+    types.StateUpdate memory _limboTarget,
+    types.Witness memory _witness
   ) public returns (bool) {
     bytes32 limboTx = keccak256(abi.encodePacked(abi.encode(_limboSource), abi.encode(_limboTarget)));
     address signer = ecverify(limboTx, _witness);
@@ -79,18 +78,18 @@ contract MultisendsPredicate is LimboExitStandard {
   }
 
   function finalizeExit(
-    PlasmaModel.Checkpoint memory _exit
+    types.Checkpoint memory _exit
   ) public {
-    PlasmaModel.StateUpdate memory stateUpdate = _exit.stateUpdate;
+    types.StateUpdate memory stateUpdate = _exit.stateUpdate;
     address owner = abi.decode(stateUpdate.stateObject.data, (address));
     // How to get token address from range?
     address tokenAddress = address(0);
-    onFinalizeExit(owner, tokenAddress, stateUpdate.end - stateUpdate.start);
+    onFinalizeExit(owner, tokenAddress, stateUpdate.range.end - stateUpdate.range.start);
   }
 
   function ecverify(
     bytes32 messageHash,
-    PlasmaModel.Witness memory witness
+    types.Witness memory witness
   ) public returns (address) {
     bytes32 prefixedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
     return ecrecover(prefixedHash, witness.v, witness.r, witness.s);

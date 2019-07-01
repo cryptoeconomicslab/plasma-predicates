@@ -1,9 +1,8 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
-
 import "openzeppelin-solidity/contracts/math/Math.sol";
-import "../library/PlasmaModel.sol";
+import {DataTypes as types} from "../library/DataTypes.sol";
 
 // This contract is following pigi spec
 // https://docs.plasma.group/en/latest/
@@ -15,26 +14,26 @@ contract TransactionStandard {
   }
 
   function verifyTransaction(
-    PlasmaModel.StateUpdate memory _preState,
-    PlasmaModel.Transaction memory _transaction,
-    PlasmaModel.Witness memory witness,
-    PlasmaModel.StateUpdate memory _postState
+    types.StateUpdate memory _preState,
+    types.Transaction memory _transaction,
+    types.Witness memory witness,
+    types.StateUpdate memory _postState
   ) internal returns (bool) {
     return false;
   }
 
   function proveExitDeprecation(
-    PlasmaModel.Checkpoint memory _deprecatedExit,
-    PlasmaModel.Transaction memory _transaction,
-    PlasmaModel.Witness memory _witness,
-    PlasmaModel.StateUpdate memory _postState
+    types.Checkpoint memory _deprecatedExit,
+    types.Transaction memory _transaction,
+    types.Witness memory _witness,
+    types.StateUpdate memory _postState
   ) public {
     // check valid transaction or not
     require(verifyTransaction(_deprecatedExit.stateUpdate, _transaction, _witness, _postState), "can't verify");
     // check intersect or not
-    require(intersect(_postState.start, _postState.end, _deprecatedExit.start, _deprecatedExit.end), "doesn't intersect");
+    require(intersect(_postState.range.start, _postState.range.end, _deprecatedExit.subrange.start, _deprecatedExit.subrange.end), "doesn't intersect");
     // call deprecateExit
-    address plasmaContractAddress = _deprecatedExit.stateUpdate.plasmaContract;
+    address plasmaContractAddress = _deprecatedExit.stateUpdate.depositAddress;
     // deprecateExit(_deprecatedExit)
   }
 }
