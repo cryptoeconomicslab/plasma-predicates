@@ -1,7 +1,7 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
-import "./library/PlasmaModel.sol";
+import {PlasmaModel as types} from "./library/PlasmaModel.sol";
 import "./standard/LimboExitStandard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
@@ -19,12 +19,12 @@ contract OwnershipPredicate is LimboExitStandard {
   }
 
   function verifyTransaction(
-    PlasmaModel.StateUpdate memory _preState,
-    PlasmaModel.Transaction memory _transaction,
-    PlasmaModel.Witness memory witness,
-    PlasmaModel.StateUpdate memory _postState
+    types.StateUpdate memory _preState,
+    types.Transaction memory _transaction,
+    types.Witness memory witness,
+    types.StateUpdate memory _postState
   ) internal returns (bool) {
-    (PlasmaModel.StateObject memory newStateObject, uint64 originBlock, uint64 maxBlock) = abi.decode(_transaction.parameters, (PlasmaModel.StateObject, uint64, uint64));
+    (types.StateObject memory newStateObject, uint64 originBlock, uint64 maxBlock) = abi.decode(_transaction.parameters, (types.StateObject, uint64, uint64));
     require(keccak256(abi.encode(_postState.stateObject)) == keccak256(abi.encode(newStateObject)), "invalid state object");
     require(_postState.start == _transaction.start, "invalid start");
     require(_postState.end == _transaction.end, "invalid end");
@@ -38,9 +38,9 @@ contract OwnershipPredicate is LimboExitStandard {
   }
 
   function canReturnLimboExit(
-    PlasmaModel.Checkpoint memory _limboSource,
-    PlasmaModel.StateUpdate memory _limboTarget,
-    PlasmaModel.Witness memory _witness
+    types.Checkpoint memory _limboSource,
+    types.StateUpdate memory _limboTarget,
+    types.Witness memory _witness
   ) public returns (bool) {
     bytes32 limboTx = keccak256(abi.encodePacked(abi.encode(_limboSource), abi.encode(_limboTarget)));
     address signer = ecverify(limboTx, _witness);
@@ -57,9 +57,9 @@ contract OwnershipPredicate is LimboExitStandard {
   }
 
   function finalizeExit(
-    PlasmaModel.Checkpoint memory _exit
+    types.Checkpoint memory _exit
   ) public {
-    PlasmaModel.StateUpdate memory stateUpdate = _exit.stateUpdate;
+    types.StateUpdate memory stateUpdate = _exit.stateUpdate;
     address owner = abi.decode(stateUpdate.stateObject.data, (address));
     // How to get token address from range?
     address tokenAddress = address(0);
@@ -68,7 +68,7 @@ contract OwnershipPredicate is LimboExitStandard {
 
   function ecverify(
     bytes32 messageHash,
-    PlasmaModel.Witness memory witness
+    types.Witness memory witness
   ) public returns (address) {
     bytes32 prefixedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
     return ecrecover(prefixedHash, witness.v, witness.r, witness.s);
