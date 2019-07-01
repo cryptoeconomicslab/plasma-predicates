@@ -1,7 +1,6 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
-import {PlasmaModel as types} from "./library/PlasmaModel.sol";
 import "./standard/LimboExitStandard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
@@ -24,10 +23,10 @@ contract OwnershipPredicate is LimboExitStandard {
     types.Witness memory witness,
     types.StateUpdate memory _postState
   ) internal returns (bool) {
-    (types.StateObject memory newStateObject, uint64 originBlock, uint64 maxBlock) = abi.decode(_transaction.parameters, (types.StateObject, uint64, uint64));
+    (types.StateObject memory newStateObject, uint64 originBlock, uint64 maxBlock) = abi.decode(_transaction.body, (types.StateObject, uint64, uint64));
     require(keccak256(abi.encode(_postState.stateObject)) == keccak256(abi.encode(newStateObject)), "invalid state object");
-    require(_postState.start == _transaction.start, "invalid start");
-    require(_postState.end == _transaction.end, "invalid end");
+    require(_postState.range.start == _transaction.range.start, "invalid start");
+    require(_postState.range.end == _transaction.range.end, "invalid end");
     require(_preState.plasmaBlockNumber <= originBlock, "pre state block number is too new");
     require(_postState.plasmaBlockNumber <= maxBlock, "post state block number is too new");
     bytes32 txHash = keccak256(abi.encode(_transaction));
@@ -63,7 +62,7 @@ contract OwnershipPredicate is LimboExitStandard {
     address owner = abi.decode(stateUpdate.stateObject.data, (address));
     // How to get token address from range?
     address tokenAddress = address(0);
-    onFinalizeExit(owner, tokenAddress, stateUpdate.end - stateUpdate.start);
+    onFinalizeExit(owner, tokenAddress, stateUpdate.range.end - stateUpdate.range.start);
   }
 
   function ecverify(

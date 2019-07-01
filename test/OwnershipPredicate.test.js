@@ -15,17 +15,11 @@ contract('OwnershipPredicate', accounts => {
     '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
   before(() => engine.start())
   after(() => engine.stop())
-  const transactionAbiTypes = ['address', 'uint64', 'uint64', 'bytes1', 'bytes']
-  const stateObjectAbiTypes = ['address', 'bytes']
-  const stateUpdateAbiTypes = [
-    { type: 'tuple', components: [{ type: 'address' }, { type: 'bytes' }] },
-    'uint64',
-    'uint64',
-    'uint64',
-    'address'
+  const transactionAbiTypes = [
+    'address',
+    'bytes',
+    { type: 'tuple', components: [{ type: 'uint256' }, { type: 'uint256' }] }
   ]
-  const witnessAbiTypes = ['bytes32', 'bytes32', 'bytes1']
-
   before(() => engine.start())
   after(() => engine.stop())
 
@@ -45,7 +39,7 @@ contract('OwnershipPredicate', accounts => {
 
   function getOwnerStateUpdate(predicate, plasmaChain) {
     const stateObject = [predicate, abi.encode(['address'], [alice])]
-    const stateUpdate = [stateObject, 0, 10000, 10, plasmaChain]
+    const stateUpdate = [stateObject, [0, 10000], 10, plasmaChain]
     return stateUpdate
   }
 
@@ -82,8 +76,7 @@ contract('OwnershipPredicate', accounts => {
       ]
       const bobStateUpdate = [
         bobStateObject,
-        0,
-        10000,
+        [0, 10000],
         10,
         this.plasmaChain.address
       ]
@@ -94,15 +87,9 @@ contract('OwnershipPredicate', accounts => {
       )
       // parameters include bobStateObject, originBlock and maxBlock
       const parameters = getParameters(bobStateObject)
-      const transaction = [
-        this.plasmaChain.address,
-        0,
-        10000,
-        methodId,
-        parameters
-      ]
+      const transaction = [this.plasmaChain.address, parameters, [0, 10000]]
 
-      const deprecatedExit = [stateUpdate, 0, 10000]
+      const deprecatedExit = [stateUpdate, [0, 10000]]
       const txHash = utils.keccak256(
         abi.encode(transactionAbiTypes, transaction)
       )
@@ -126,31 +113,19 @@ contract('OwnershipPredicate', accounts => {
         this.ownershipPredicate.address,
         this.plasmaChain.address
       )
-      const sourceExit = [stateUpdate, 0, 10000]
+      const sourceExit = [stateUpdate, [0, 10000]]
       const bobStateObject = [
         this.ownershipPredicate.address,
         abi.encode(['address'], [bob])
       ]
       const limboTarget = [
         bobStateObject,
-        0,
-        10000,
+        [0, 10000],
         10,
         this.plasmaChain.address
       ]
-      const methodId = utils.hexDataSlice(
-        utils.keccak256(utils.toUtf8Bytes('send(address)')),
-        0,
-        1
-      )
       const parameters = getParameters(bobStateObject)
-      const transaction = [
-        this.plasmaChain.address,
-        0,
-        10000,
-        methodId,
-        parameters
-      ]
+      const transaction = [this.plasmaChain.address, parameters, [0, 10000]]
 
       const txHash = utils.keccak256(
         abi.encode(transactionAbiTypes, transaction)

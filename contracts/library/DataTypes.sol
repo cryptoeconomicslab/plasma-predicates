@@ -49,4 +49,11 @@ contract DataTypes {
         bytes32 hashValue;
         uint128 start;
     }
+
+    struct Witness {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+    }
+
 }
