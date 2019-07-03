@@ -56,4 +56,9 @@ contract DataTypes {
         uint8 v;
     }
 
+    struct BatchCheckpoint {
+        bytes32 rangeAndBlockNumber;
+        bytes32 hashOfStateObject;
+    }
+
 }

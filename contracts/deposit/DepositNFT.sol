@@ -9,34 +9,22 @@ pragma experimental ABIEncoderV2;
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 import {DataTypes as types} from "../library/DataTypes.sol";
 import "../standard/DepositStandard.sol";
-import "../CommitmentChain.sol";
 
 /**
  * @title DepositNFT
- * @notice This is mock deposit contract. Spec is http://spec.plasma.group/en/latest/src/02-contracts/deposit-contract.html
+ * @notice This is the deposit contract for NFT. Spec is http://spec.plasma.group/en/latest/src/02-contracts/deposit-contract.html
  */
 contract DepositNFT is DepositStandard {
 
-    // Event definitions
-    event CheckpointFinalized(
-        bytes32 checkpoint
-    );
-
-    event LogCheckpoint(
-        types.Checkpoint checkpoint
-    );
-
     ERC721 public erc721;
-    CommitmentChain public commitmentChain;
     mapping (uint256 => uint256) public nftTokens;
-    constructor(address _erc721, address _commitmentChain) public {
+    constructor(address _erc721, address _commitmentChain) DepositStandard(_commitmentChain) public {
         erc721 = ERC721(_erc721);
-        commitmentChain = CommitmentChain(_commitmentChain);
     }
 
     /**
      * @notice
-     * @param _tokenId TODO
+     * @param _tokenId The ID of deposited ERC721 token
      * @param _initialState  TODO
      */
     function deposit(uint256 _tokenId, types.StateObject memory _initialState) public {
@@ -64,5 +52,29 @@ contract DepositNFT is DepositStandard {
         emit CheckpointFinalized(checkpointId);
         emit LogCheckpoint(checkpoint);
     }
+
+    function finalizeExit(
+        types.Checkpoint memory _exit,
+        bytes memory _exitInclusionProof,
+        uint256 depositedRangeId
+    ) public {
+        bytes32 checkpointId = calculateCheckpointRootWithProof(_exit, _exitInclusionProof);
+        // Check that we are authorized to finalize this exit
+        require(_exit.stateUpdate.stateObject.predicateAddress == msg.sender, "Exit must be finalized by its predicate");
+        require(checkpointFinalized(checkpointId), "Checkpoint must be finalized to finalize an exit");
+        require(block.number > exitRedeemableAfter[checkpointId], "Exit must be redeemable after this block");
+        require(isSubrange(_exit.subrange, depositedRanges[depositedRangeId]), "Exit must be of an deposited range (one that hasn't been exited)");
+        // Range must have exactly 1 token
+        require(_exit.subrange.end - _exit.subrange.start == 1, "range must be 1");
+        // Remove the deposited range
+        removeDepositedRange(_exit.subrange, depositedRangeId);
+        // Delete the exit & checkpoint entries
+        delete checkpoints[checkpointId];
+        delete exitRedeemableAfter[checkpointId];
+        // Transfer ERC721 token to the deposit contract
+        erc721.approve(_exit.stateUpdate.stateObject.predicateAddress, nftTokens[_exit.subrange.start]);
+        // Emit an event recording the exit's finalization
+        emit ExitFinalized(checkpointId);
+    }    
 
 }

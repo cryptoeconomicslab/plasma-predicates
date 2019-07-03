@@ -3,7 +3,6 @@ pragma experimental ABIEncoderV2;
 
 import {DataTypes as types} from "../library/DataTypes.sol";
 import "../standard/DepositStandard.sol";
-import "../CommitmentChain.sol";
 
 /**
  * @title Deposit
@@ -11,20 +10,9 @@ import "../CommitmentChain.sol";
  */
 contract MockDeposit is DepositStandard {
 
-    // Event definitions
-    event CheckpointFinalized(
-        bytes32 checkpoint
-    );
-
-    event LogCheckpoint(
-        types.Checkpoint checkpoint
-    );
-
     CommitmentChain public commitmentChain;
-    uint256 public totalDeposited;
 
-    constructor(address _commitmentChain) public {
-        commitmentChain = CommitmentChain(_commitmentChain);
+    constructor(address _commitmentChain) DepositStandard(_commitmentChain) public {
     }
 
     /**
