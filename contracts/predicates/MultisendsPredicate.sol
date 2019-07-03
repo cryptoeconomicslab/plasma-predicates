@@ -1,20 +1,33 @@
 pragma solidity >0.5.6;
 pragma experimental ABIEncoderV2;
 
-import "./standard/LimboExitStandard.sol";
+import "../standard/LimboExitStandard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
- * @title OwnershipPredicate
- * @dev simple ownership
- *     description is https://docs.plasma.group/projects/spec/en/latest/src/07-predicates/simple-ownership.html 
+ * @title MultisendsPredicate
+ * @dev
+ *     StateObject.data
+ *       owner
+ *     Transaction.parameters
+ *       preStateObject, newStateObject, counterStateUpdateHash
  */
-contract OwnershipPredicate is LimboExitStandard {
+contract MultisendsPredicate is LimboExitStandard {
+
+  mapping (bytes32 => bool) public counterStateUpdates;
 
   function bytesToAddress(bytes memory bys) private pure returns (address addr) {
     assembly {
       addr := mload(add(bys,20))
     }
+  }
+  
+  function finalizeCounterExit(
+    types.Checkpoint memory _exit
+   ) public {
+    types.StateUpdate memory stateUpdate = _exit.stateUpdate;
+    counterStateUpdates[keccak256(abi.encode(stateUpdate))] = true;
+    // call plasmaChain.finalizeExit()
   }
 
   function verifyTransaction(
@@ -23,12 +36,21 @@ contract OwnershipPredicate is LimboExitStandard {
     types.Witness memory witness,
     types.StateUpdate memory _postState
   ) internal returns (bool) {
-    (types.StateObject memory newStateObject, uint64 originBlock, uint64 maxBlock) = abi.decode(_transaction.body, (types.StateObject, uint64, uint64));
-    require(keccak256(abi.encode(_postState.stateObject)) == keccak256(abi.encode(newStateObject)), "invalid state object");
+    (types.StateObject memory preStateObject, types.StateObject memory newStateObject, bytes32 counterStateUpdateHash) = abi.decode(_transaction.body, (types.StateObject, types.StateObject, bytes32));
+    if (counterStateUpdates[counterStateUpdateHash]) {
+      // call finalize Exit
+      require(
+        keccak256(abi.encode(_postState.stateObject)) == keccak256(abi.encode(newStateObject)),
+        "invalid state object");
+    } else {
+      require(
+        keccak256(abi.encode(_postState.stateObject)) == keccak256(abi.encode(preStateObject)),
+        "invalid state object");
+    }
     require(_postState.range.start == _transaction.range.start, "invalid start");
     require(_postState.range.end == _transaction.range.end, "invalid end");
-    require(_preState.plasmaBlockNumber <= originBlock, "pre state block number is too new");
-    require(_postState.plasmaBlockNumber <= maxBlock, "post state block number is too new");
+    // require(_preState.plasmaBlockNumber <= originBlock, "pre state block number is too new");
+    // require(_postState.plasmaBlockNumber <= maxBlock, "post state block number is too new");
     bytes32 txHash = keccak256(abi.encode(_transaction));
     address signer = ecverify(txHash, witness);
     // return abi.decode(_stateUpdate.stateObject.data, (address));

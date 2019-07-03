@@ -1,14 +1,21 @@
+/**
+ * Original code is https://github.com/plasma-group/pigi/blob/master/packages/contracts/contracts/Deposit.sol
+ * Created by Plasma Group https://github.com/plasma-group/pigi
+ * Modified by Cryptoeconomics Lab on Jul 03 2019
+ */
 pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
-import {DataTypes as types} from "./library/DataTypes.sol";
-import "./CommitmentChain.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import {DataTypes as types} from "../library/DataTypes.sol";
+import "../standard/DepositStandard.sol";
+import "../CommitmentChain.sol";
 
 /**
- * @title Deposit
+ * @title DepositERC20
  * @notice This is mock deposit contract. Spec is http://spec.plasma.group/en/latest/src/02-contracts/deposit-contract.html
  */
-contract Deposit {
+contract DepositERC20 is DepositStandard {
 
     // Event definitions
     event CheckpointFinalized(
@@ -19,10 +26,11 @@ contract Deposit {
         types.Checkpoint checkpoint
     );
 
+    ERC20 public erc20;
     CommitmentChain public commitmentChain;
-    uint256 public totalDeposited;
 
-    constructor(address _commitmentChain) public {
+    constructor(address _erc20, address _commitmentChain) public {
+        erc20 = ERC20(_erc20);
         commitmentChain = CommitmentChain(_commitmentChain);
     }
 
@@ -32,6 +40,8 @@ contract Deposit {
      * @param _initialState  TODO
      */
     function deposit(uint256 _amount, types.StateObject memory _initialState) public {
+        // Transfer erc20 tokens from sender to deposit contract
+        erc20.transferFrom(msg.sender, address(this), _amount);
         types.Range memory depositRange = types.Range({
             start: totalDeposited,
             end: totalDeposited + _amount
@@ -47,16 +57,10 @@ contract Deposit {
             stateUpdate: stateUpdate,
             subrange: depositRange
         });
+        extendDepositedRanges(_amount);
         bytes32 checkpointId = getCheckpointId(checkpoint);
         emit CheckpointFinalized(checkpointId);
         emit LogCheckpoint(checkpoint);
-    }
-
-    /* 
-     * Helpers
-     */ 
-    function getCheckpointId(types.Checkpoint memory _checkpoint) private pure returns (bytes32) {
-        return keccak256(abi.encode(_checkpoint.stateUpdate, _checkpoint.subrange));
     }
 
 }
