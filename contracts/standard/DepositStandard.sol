@@ -257,7 +257,7 @@ contract DepositStandard {
         require(intersects(_challenge.challengedCheckpoint.subrange, _challenge.challengingCheckpoint.subrange), "Challenge ranges must intersect");
         require(_challenge.challengingCheckpoint.stateUpdate.plasmaBlockNumber < _challenge.challengedCheckpoint.stateUpdate.plasmaBlockNumber, "Challenging cp after challenged cp");
         require(!challenges[challengeId], "Challenge must not already exist");
-        require(checkpoints[challengedCheckpointId].challengeableUntil > block.number, "Checkpoint must still be challengable");
+        require(checkpoints[challengedCheckpointId].challengeableUntil > block.number, "Checkpoint must still be challengeable");
         // Add the challenge
         checkpoints[challengedCheckpointId].outstandingChallenges += 1;
         challenges[challengeId] = true;
@@ -309,7 +309,7 @@ contract DepositStandard {
     function checkpointFinalized(bytes32 checkpointId) public view returns (bool) {
         // To be considered finalized, a checkpoint:
         // - MUST have no outstanding challenges
-        // - MUST no longer be challengable
+        // - MUST no longer be challengeable
         return checkpoints[checkpointId].outstandingChallenges == 0
                 && checkpoints[checkpointId].challengeableUntil < block.number;
     }
