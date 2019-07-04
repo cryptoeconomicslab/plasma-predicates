@@ -94,14 +94,14 @@ contract DepositStandard {
      * @dev Precondition: range is subrange of depositedRanges[depositedRangeId]
      */
     function removeDepositedRange(types.Range memory range, uint256 depositedRangeId) public {
-        types.Range memory encompasingRange = depositedRanges[depositedRangeId];
+        types.Range memory encompassingRange = depositedRanges[depositedRangeId];
 
         // Split the LEFT side
 
         // check if we we have a new deposited region to the left
-        if (range.start != encompasingRange.start) {
+        if (range.start != encompassingRange.start) {
             // new deposited range from the unexited old start until the newly exited start
-            types.Range memory leftSplitRange = types.Range(encompasingRange.start, range.start);
+            types.Range memory leftSplitRange = types.Range(encompassingRange.start, range.start);
             // Store the new deposited range
             depositedRanges[leftSplitRange.end] = leftSplitRange;
         }
@@ -109,16 +109,16 @@ contract DepositStandard {
         // Split the RIGHT side (there 3 possible splits)
 
         // 1) ##### -> $$$## -- check if we have leftovers to the right which are deposited
-        if (range.end != encompasingRange.end) {
+        if (range.end != encompassingRange.end) {
             // new deposited range from the newly exited end until the old unexited end
-            types.Range memory rightSplitRange = types.Range(range.end, encompasingRange.end);
+            types.Range memory rightSplitRange = types.Range(range.end, encompassingRange.end);
             // Store the new deposited range
             depositedRanges[rightSplitRange.end] = rightSplitRange;
             // We're done!
             return;
         }
         // 3) ##### -> $$$$$ -- without right-side leftovers & not the rightmost deposit, we can simply delete the value
-        delete depositedRanges[encompasingRange.end];
+        delete depositedRanges[encompassingRange.end];
     }
     
     /**
