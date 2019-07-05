@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "truffle compile",
-    "test": "npm run build && truffle test",
+    "clean": "rm -rf build",
+    "test": "npm run clean && npm run build && truffle test",
     "deploy:local": "truffle migrate --network local"
   },
   "author": {
