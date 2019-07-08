@@ -2,7 +2,7 @@ const PredicateUtils = artifacts.require('PredicateUtils')
 const StateUpdateEncoder = artifacts.require('StateUpdateEncoder')
 const OwnershipPredicate = artifacts.require('OwnershipPredicate')
 const CommitmentChain = artifacts.require('CommitmentChain')
-const Deposit = artifacts.require('Deposit')
+const Deposit = artifacts.require('MockDeposit')
 
 module.exports = function(deployer) {
   deployer

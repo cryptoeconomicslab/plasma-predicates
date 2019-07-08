@@ -1,14 +1,14 @@
 pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
-import {DataTypes as types} from "./library/DataTypes.sol";
-import "./CommitmentChain.sol";
+import {DataTypes as types} from "../library/DataTypes.sol";
+import "../standard/DepositStandard.sol";
 
 /**
- * @title Deposit
+ * @title MockDeposit
  * @notice This is mock deposit contract. Spec is http://spec.plasma.group/en/latest/src/02-contracts/deposit-contract.html
  */
-contract Deposit {
+contract MockDeposit {
 
     // Event definitions
     event CheckpointFinalized(
