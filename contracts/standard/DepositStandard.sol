@@ -185,6 +185,9 @@ contract DepositStandard {
         emit CheckpointStarted(_checkpoint, checkpoints[checkpointId].challengeableUntil);
     }
 
+    /**
+     * @dev Start batch exit from batch checkpoint
+     */
     function startExit(
         bytes32 _checkpointId
     ) public {
@@ -196,7 +199,7 @@ contract DepositStandard {
     }
 
     /**
-     * @dev Predicate can deprecate one exit of batch exits. New checkpoint root should be caluculated.
+     * @dev Predicate can deprecate one exit of batch exit. New checkpoint root should be caluculated.
      */
     function deprecateExit(
         types.Checkpoint memory _exit,
