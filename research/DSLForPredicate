@@ -1,14 +1,17 @@
 DSL for plasma predicate
 =====
 
-Define the domain specific language of predicate to make discussion more efficiently. We provide the theory to treat fraud proof verification.
+
+Define a domain-specific language of predicates so that we can convey discussions more efficiently. It provides a scheme to decompose and assemble fraud proof verification logics.
 Derived from https://github.com/cryptoeconomicslab/plasma-predicates/issues/31
-Thank you CEL team(...) for daily discussion  and also great foundation such as predicate from PG.
+
+Credits to CEL team(...) for having a daily discussion with me and also building a great foundation of predicate originally proposed by PG.
+I'm not sure what you really meant by this sentence. Please check it with your caution.
 
 # Problems to solve
 
-It's not really efficient to discribe new predicate everytime it is created. Researchers need a very high context background to understand the behavior of deprecation logic in the discussion for example at plasma.build. We should define the notation for predicates so that everyone can share a new predicate desdin quickly without any misinterpretation.
-Secondly, it's generally important to look for what atomic predicate is. In this theory, We can convert from complex predicate to multiple simple predicates. We can build more complex predicate easily, and also break these down to more general predicates.
+It's not really efficient to describe new predicates from scratch everytime they are created. Researchers need a very high context background to understand the behavior of deprecation logic in the discussion, for example at plasma.build. Hence, I thought we should define notations for predicates so that everyone can be on the same page and smoothly share a new predicate design without any misinterpretation.
+Secondly, it's generally important to look for the more primitive way of predicate designs. In this theory, we can break down complex predicate into multiple simple predicates. That way, we will be able to generalize the way to build complex predicates more easily.
 
 # How does it work in detail
 
@@ -21,11 +24,11 @@ Secondly, it's generally important to look for what atomic predicate is. In this
 dispute(deprecation\_logic(state))
 ```
 
-* The `predicate` is one of dispute scheme.
-* "deprecation logic" and "deprecation logic" means logical conjunction.
-* "deprecation logic" or "deprecation logic" means logical disjunction.
-* "dispute scheme" and "despute scheme" means exits runs parallelly and the result are logical conjunction of two results. 
-* "dispute scheme" or "despute scheme" means exits runs parallelly and the result are logical disjunction of two results. 
+* predicate is one of the dispute schemes.
+* "deprecation logic" AND "deprecation logic" is logical conjunction.
+* "deprecation logic" OR "deprecation logic" is logical disjunction.
+* "dispute scheme" AND "dispute scheme" means "run two exits parallelly and get the logical conjunction of two results."
+* "dispute scheme" OR "dispute scheme" means "run two exits parallelly and get the logical disjunction of the two results."
 
 ## Theorem
 
