@@ -1,0 +1,95 @@
+DSL for plasma predicate
+=====
+
+Define the domain specific language of predicate to make discussion more efficiently. We provide the theory to treat fraud proof verification.
+Derived from https://github.com/cryptoeconomicslab/plasma-predicates/issues/31
+Thank you CEL team(...) for daily discussion  and also great foundation such as predicate from PG.
+
+# Problems to solve
+
+It's not really efficient to discribe new predicate everytime it is created. Researchers need a very high context background to understand the behavior of deprecation logic in the discussion for example at plasma.build. We should define the notation for predicates so that everyone can share a new predicate desdin quickly without any misinterpretation.
+Secondly, it's generally important to look for what atomic predicate is. In this theory, We can convert from complex predicate to multiple simple predicates. We can build more complex predicate easily, and also break these down to more general predicates.
+
+# How does it work in detail
+
+## Dispute scheme and deprecation logic
+
+* The dispute scheme is to prove the validity of state.
+* The deprecation logic is to prove deprecation of state.
+
+```python
+dispute(deprecation\_logic(state))
+```
+
+* The `predicate` is one of dispute scheme.
+* "deprecation logic" and "deprecation logic" means logical conjunction.
+* "deprecation logic" or "deprecation logic" means logical disjunction.
+* "dispute scheme" and "despute scheme" means exits runs parallelly and the result are logical conjunction of two results. 
+* "dispute scheme" or "despute scheme" means exits runs parallelly and the result are logical disjunction of two results. 
+
+## Theorem
+
+```python 
+dispute(deprecationA(state) and deprecationB(state)) = dispute(deprecationA(state)) or dispute(deprecationB(state))
+dispute(deprecationA(state) or deprecationB(state)) = dispute(deprecationA(state)) and dispute(deprecationB(state))
+```
+
+## Examples
+
+### Fee predicate
+
+This formula defamation stands for that "the transfer with fee predicate" can be split into fee predicate and ownership predicate.
+
+```
+predicate(proveFee(state) and proveTransfer(state))
+ = predicate(proveFee(state)) or predicate(proveTransfer(state))
+```
+
+```
+1. predicate(proveFee(state) and proveTransfer(state))
+```	
+
+1. means one predicate has the deprecation logic which is combined from proveFee and proveDeprecation.
+
+```
+2. predicate(proveFee(state)) or predicate(proveTransfern(state))
+```
+
+2. means that two exits run at the same time and if at least one exit succeed the whole state should be exitable.
+
+
+|name|a|b|c|d|
+| --- | --- | --- | --- | --- |
+| proveFee(state)| T| T| F| F |
+| proveTransfer(state)| T| F| T| F|
+| exitable| T| T| T| F|
+
+### Simple swap predicate
+
+Simple swap requires 3 predicates.
+
+```
+predicate(proveDeprecation(state) and proveInclusion(state.correspondent) and confirmation(state.correspondent))
+	= predicate(proveDeprecation(state)) or predicate(proveInclusion(state.correspondent) and confirmation(state.correspondent))
+	= predicate(proveDeprecation(state)) or predicate(proveInclusion(state.correspondent)) or predicate(confirmation(state.correspondent))
+```
+
+### Dex predicate
+
+Dex predicate requires 3 predicates.
+
+```
+predicate(proveDeprecation(state)) or (predicate(finalizeExit(state.correspondent)) and predicate(proveDeprecation(state.correspondent)))
+```
+
+## What topic to research next
+
+### Payment channel predicate?
+
+```
+predicate(proveClose(openState)) and channel(deprecation(openState))
+```	
+
+### How do we stands for extra dispute pereod?
+
+The simple swap requires extra dispute pediod. How do we write that?
