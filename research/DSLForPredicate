@@ -14,8 +14,8 @@ Secondly, it's generally important to look for what atomic predicate is. In this
 
 ## Dispute scheme and deprecation logic
 
-* The dispute scheme is to prove the validity of state.
-* The deprecation logic is to prove deprecation of state.
+* The dispute scheme is to approve the validity of a state.
+* The deprecation logic is to approve who can deprecate a state in what timing.
 
 ```python
 dispute(deprecation\_logic(state))
