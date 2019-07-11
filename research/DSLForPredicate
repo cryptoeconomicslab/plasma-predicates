@@ -52,13 +52,13 @@ predicate(proveFee(state) and proveTransfer(state))
 1. predicate(proveFee(state) and proveTransfer(state))
 ```	
 
-1. means one predicate has the deprecation logic which is combined from proveFee and proveDeprecation.
+1. means one predicate consists of two different deprecation logics, proveFee and proveDeprecation.
 
 ```
 2. predicate(proveFee(state)) or predicate(proveTransfern(state))
 ```
 
-2. means that two exits run at the same time and if at least one exit succeed the whole state should be exitable.
+2. means that two exits run simultaneously and the whole state should be able to exit when at least one of the two exits succeeds.
 
 
 |name|a|b|c|d|
@@ -85,7 +85,7 @@ Dex predicate requires 3 predicates.
 predicate(proveDeprecation(state)) or (predicate(finalizeExit(state.correspondent)) and predicate(proveDeprecation(state.correspondent)))
 ```
 
-## What topic to research next
+## Further research needed
 
 ### Payment channel predicate?
 
@@ -93,6 +93,6 @@ predicate(proveDeprecation(state)) or (predicate(finalizeExit(state.corresponden
 predicate(proveClose(openState)) and channel(deprecation(openState))
 ```	
 
-### How do we stands for extra dispute pereod?
+### How can we denote an extra dispute pereod?
 
 The simple swap requires extra dispute pediod. How do we write that?
