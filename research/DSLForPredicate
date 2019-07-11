@@ -38,7 +38,7 @@ dispute(deprecationA(state) or deprecationB(state)) = dispute(deprecationA(state
 
 ### Fee predicate
 
-This formula defamation stands for that "the transfer with fee predicate" can be split into fee predicate and ownership predicate.
+This formula deformation stands for that "the transfer with fee predicate" can be split into fee predicate and ownership predicate.
 
 ```
 predicate(proveFee(state) and proveTransfer(state))
