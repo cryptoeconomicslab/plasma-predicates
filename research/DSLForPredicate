@@ -95,4 +95,4 @@ predicate(proveClose(openState)) and channel(deprecation(openState))
 
 ### How can we denote an extra dispute pereod?
 
-The simple swap requires extra dispute pediod. How do we write that?
+A simple swap predicate we designed requires an extra dispute period. How can we denote it?
