@@ -1,46 +1,64 @@
 Swap Predicate   
 =====
 
-# Overview
-This document describes an architcture desgin of simple atomic swap predicate, which also covers its several edge cases(WIP)
+## Overview
+This document describes an architcture desgin of simple atomic swap predicate.
 
-## Background(iranai kamo, if needed you can edit this section later)
+## Background
 
-Previously, we were not sure how to prevent one of the recepient's invalid exit in this conditional swap. 
+We attempted to design a deprecation logic that allows two different coin owners to swap their coins in a safe way given that both participants are online through out this swap process until their exits. 
+  
+This predicate could nest the [Collateral Predicate](https://hackmd.io/@yuriko/Sy0VQFneH#Collateral-predicate) to build [Lending Plapps](https://hackmd.io/@yuriko/Sy0VQFneH#Lending-Plapp) which was proposed by @syuhei176 before.
 
-## Abstract
-
-We attempted to design a predicate logic to safely swap coins. 
-Major breakthrough to mention from this design is  
-- By having a step of dprecation to confirm the swap in the end, invalid exit from one of the swap participants  will be challengable for the new owner of the coin after the swap.  
-
-## Usecase 
-
-This predicate could be nested in the [collateral predicate](https://hackmd.io/@yuriko/Sy0VQFneH#Collateral-predicate) to build [Lending Plapps](https://hackmd.io/@yuriko/Sy0VQFneH#Lending-Plapp).
-It might be needless to say, but the benefit of allowing this kind of swaps on Plsma is to reduce the gas cost and time to confirmation for users with a high fund security. 
 
 # Architecture
-![](https://i.imgur.com/rVLTCc2.jpg)
+![]() - image will be inserted later
 
-### Swap between A<->B
-In the end, you want 
+### **Swap between Alice ans Bob**
+In the end, you want these following conditions. 
+- [A->B]: Range A, which was previously owned by Alice, has to be transfered to Bob 
+- [B->A]: Range B, which was previously owned by Bob, has to be transfered to Alice
 
-- [A->B]: The ownership of Range A, which was previously owned by Alice, have to be transfered to Bob 
-- [B->A]: The ownership of Range B, which was previously owned by Bob, has to be transfered to Alice
+### **Deprecation Logic** 
+First, both ranges A and B exit as a conditional state A|B and B|A. This conditional state will be deprecated to confirm/cancel the swap process later.  
 
-However, these transactions below should not be completed without 
+To assure that both of the swap participants can exchange their ranges as they agreed in a mutually benefitial way, 
 
-- [A|B->B]: Sig(B)1 + inclusion proof of this deprecation represented by the arrow with Sig(B)1
-- [B|A->A]: Sig(A)1 + inclusion proof of this deprecation represented by the arrow with Sig(A)1
+1. Following deprecations of the conditioal state (A|B->B and B|A->A) is allowed only when  
 
-Without them, the ownership of the coin will be simply retuned to the original owners. 
+- [A|B->B]: Bob has a confirmation signature from Alice, which claims that Alice agrees that the ownership of range A to be transfered Bob
+- [B|A->A]: Alice has a confirmation signature from Bob, which claims that Bob agrees that the ownership of range B to be transfered to Alice
+
+    Without them, the swap process will terminate and ownership of the coin will be simply transfered to the original owners. 
 
 - ~~[A|B->B]~~: [A|B->A]
 - ~~[B|A->A]~~: [B|A->B]
 
-To prevent invalid exits from the swap participants after the swap (represented by an "exit" arrow from B), both Alice and Bob have to sign a transaction to confirm this swap.
-- [A|B->B] : Sig(A)2 
-- [B|A->A] : Sig(B)2 
+2. To 'startExit' their counterparty's coin, swap participants need a inclusion proof of its conditional state.  
+
+3. If both of the conditional states' exits have been pending for n days of 'dispute period', then the ownership of the coin will be simply transfer back to the orginal owner. When one of the conditional state's exit is deprecated whereas the other one's deprecation has not been done, then extra dispute period will be executed on Layer 1 to confirm the ownership of the coin with conditional state.
+
+### **Edge cases** 
+
+#### Edge case 1
+Suppose Alice is an honest user and the operator and her counterparty Bob are malliciously colluding. Alice owns a coin at block 1 and submits a state update to a conditional state A|B, but the operator puts a fraudulent exit in block 2 and then includes Alice's transaction in block 3. 
+
+Alice can follow these steps to exit her coin without Bob's cooperation. 
+
+1) Alice attemsps to exit from block1
+2) Operator cancels Alice's exit by revelaing his invalid exit atempt transaction in block 3. (Otherwise, Alice's exit succeeds after n-1 more days)
+3) Alcie can challenge the operator's exit using the inclusion proof of the conditional state. 
+
+#### Edge case 2
+Again, suppose Alice is an honest user here, and the operator and her counterparty Bob  are malliciously colluding.
+Suppose the operator includes both Alice and Bob's coins' statUpdate to the conditional state A|B in block 1. Both Alice and Bob send confirmation signatures to each other,but the operator withholds Bob's confirmation signature in block 2. Therefore, only Bob can deprecate Alice's conditinal state exit with her confirmation signature.  
+
+In this case, Alice can get her a coin from Bob with the following protocol; 
+
+Applying rule 4, exited Bob's conditional state will be put on a trial with additional dispute period on Layer 1. Alice's coin's conditional state will be automatically deprecated with the inclusion proof of A|B in block 1 and Bob's confirmation signature in block 2.   
 
 
-This way, even if there is an invalid exit attempt by the swap participants colluding with each other, Carol can challenge Bob's invalid exit submitting Sig(A)2 and its inclusion proof, claiming that the ownership of coin B has already been transfered to Carol. 
+
+
+
+ 
