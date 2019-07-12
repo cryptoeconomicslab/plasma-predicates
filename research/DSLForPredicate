@@ -89,13 +89,13 @@ predicate(proveDeprecation(state)) or (predicate(finalizeExit(state.corresponden
 
 ## Further research needed
 
-### Payment channel predicate?
+### How can we denote combination of different dispute schemes?
 
-How can we denote payment channel on predicate?
+For example, payment channel on predicate.
 
 ```
 predicate(proveClose(openState)) and channel(deprecation(openState))
-```	
+```
 
 ### How can we denote an extra dispute?
 
