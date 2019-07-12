@@ -38,7 +38,9 @@ To assure that both of the swap participants can exchange their ranges as they a
 - [A|B->B]: Bob has a **confirmation signature** from Alice, which claims that Alice agrees that the ownership of range A to be transfered Bob, and **inclusion proof** of `B|A` (corresponding StateUpdate).
 - [B|A->A]: Alice has a **confirmation signature** from Bob, which claims that Bob agrees that the ownership of range B to be transfered to Alice, and **inclusion proof** of `A|B` (corresponding StateUpdate).
 
-    Without them, the swap process will terminate and ownership of the coin will be simply transfered to the original owners. 
+Each party sends their confirmation signature to  their counterparty after checking that the conditional state of their counter party's coin is included in a block. 
+
+Without them, the swap process will terminate and ownership of the coin will be simply transfered to the original owners. 
 
 - ~~[A|B->B]~~: [A|B->A]
 - ~~[B|A->A]~~: [B|A->B]
@@ -47,21 +49,21 @@ To assure that both of the swap participants can exchange their ranges as they a
 
 3. If both of the conditional states' exits have been pending for n days of 'dispute period', then the ownership of the coin will be simply transfer back to the orginal owner. When one of the conditional state's exit is deprecated whereas the other one's deprecation has not been done, then extra dispute period will be executed on Layer 1 to confirm the ownership of the coin with conditional state.
 
-### **Edge cases** 
+### **Attack Scenarios** 
 
-#### Edge case 1
-Suppose Alice is an honest user and the operator and her counterparty Bob are malliciously colluding. Alice owns a coin at block 1 and submits a state update to a conditional state A|B, but the operator puts a fraudulent exit in block 2 and then includes Alice's transaction in block 3. 
+#### Attack Scenarios 1
+Suppose Alice is an honest user and the operator is maliciously colluding with her counterparty Bob. Alice and Bob own their coins at block 1 and submits a state update to a conditional state A|B and B|A in block 2. Then the operator frandulently attempt to exit coin B, which was supposed to be transfered to Alice, in block 3. 
 
-Alice can follow these steps to exit her coin without Bob's cooperation. 
+Alice can protect her assets in either of the following ways. 
 
-1) Alice attemsps to exit from block1
-2) Operator cancels Alice's exit by revelaing his invalid exit atempt transaction in block 3. (Otherwise, Alice's exit succeeds after n-1 more days)
-3) Alcie can challenge the operator's exit using the inclusion proof of the conditional state. 
+1)Op's exit happens before the confirmation: Alice can simply cancel her swap choosing not to send her confirmation signature to Bob 
+2)Op's exit happens after the confirmation: Alcie can challenge the operator's fraudulent exit using the inclusion proof of coin B's conditional state B|A. 
+ 
 
-#### Edge case 2
-Again, suppose Alice is an honest user here, and the operator and her counterparty Bob  are malliciously colluding.
+#### Attack Scenarios 2
+Again, suppose Alice is an honest user here, and the operator is maliciously colluding with her counterparty Bob.
 Suppose the operator includes both Alice and Bob's coins' statUpdate to the conditional state A|B in block 1. Both Alice and Bob send confirmation signatures to each other, but the operator withholds Bob's confirmation signature in block 2. Therefore, only Bob can deprecate Alice's conditinal state exit with her confirmation signature.  
 
 In this case, Alice can get her a coin from Bob with the following protocol; 
 
-Applying rule 4, exited Bob's conditional state will be put on a trial with additional dispute period on Layer 1. Alice's coin's conditional state will be automatically deprecated with the inclusion proof of A|B in block 1 and Bob's confirmation signature in block 2.   
+Applying rule 4, exited Bob's conditional state will be put on a trial with additional dispute period on Layer 1. Coin A's conditional state will be automatically deprecated with the inclusion proof of A|B in block 1 and Bob's confirmation signature in block 2.   
