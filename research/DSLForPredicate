@@ -65,9 +65,9 @@ predicate(proveFee(state) and proveTransfer(state))
 
 |name|a|b|c|d|
 | --- | --- | --- | --- | --- |
-| proveFee(state)| T| T| F| F |
-| proveTransfer(state)| T| F| T| F|
-| exitable| T| T| T| F|
+| predicate(proveFee(state)) | T| T| F| F |
+| predicate(proveTransfer(state)) | T| F| T| F|
+| exitable | T| T| T| F|
 
 ### Simple swap predicate
 
@@ -91,10 +91,18 @@ predicate(proveDeprecation(state)) or (predicate(finalizeExit(state.corresponden
 
 ### Payment channel predicate?
 
+How can we denote payment channel on predicate?
+
 ```
 predicate(proveClose(openState)) and channel(deprecation(openState))
 ```	
 
-### How can we denote an extra dispute pereod?
+### How can we denote an extra dispute?
 
-A simple swap predicate we designed requires an extra dispute period. How can we denote it?
+For example, a simple swap predicate we designed requires an extra dispute period. How can we denote it?
+
+### Predicate development framework?
+
+I think we can build development framework for predicate by combination of multiple predicates.
+
+
