@@ -21,7 +21,7 @@ Secondly, it's generally important to look for the more primitive way of predica
 * The deprecation logic is to approve who can deprecate a state in what timing.
 
 ```python
-dispute(deprecation\_logic(state))
+dispute(deprecation_logic(state))
 ```
 
 * predicate is one of the dispute schemes.
