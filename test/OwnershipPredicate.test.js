@@ -1,6 +1,5 @@
 const CoverageSubprovider = require('contract-coverager')
 const engine = CoverageSubprovider.injectInTruffle(artifacts, web3)
-const PredicateUtils = artifacts.require('PredicateUtils')
 const StateUpdateEncoder = artifacts.require('StateUpdateEncoder')
 const CommitmentChain = artifacts.require('CommitmentChain')
 const Deposit = artifacts.require('MockDeposit')
