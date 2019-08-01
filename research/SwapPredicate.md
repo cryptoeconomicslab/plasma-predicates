@@ -2,13 +2,13 @@ Swap Predicate
 =====
 
 ## Overview
-This document describes an architcture desgin of simple atomic swap predicate.
+This document describes an architcture design of simple atomic swap predicate.
 
 ## Background
 
 @syuhei176, @tkmcttm, and I attempted to design a deprecation logic that allows two different coin owners to swap their coins in a safe way given that both participants are online through out this swap process until their exits. 
 
-We got an idea of this deprecation logic from `atomic swap predicate` suggested by @karl [here](https://plasma.build/t/a-question-about-verify-deprecation/41/3). Thanks for giving us inspiration.  
+  We got an idea of this deprecation logic from `atomic swap predicate` suggested by @karl [here](https://plasma.build/t/a-question-about-verify-deprecation/41/3). Thanks for giving us inspiration.  
 
 Also credits to @benchain, who shared his insight on a potential attack reagarding atomic swap [here](https://plasma.build/t/fast-finality-predicate/79/4) before, it helped us to elaborate on the operator's withholding attack, explained later in the [Edge case 2]() section. 
   
@@ -48,7 +48,7 @@ To assure that both of the swap participants can exchange their ranges as they a
 2. To 'startExit'counterparty's coin, swap participants need a inclusion proof of its conditional state.  
 Say Alice checked B|A was included, so she sent confirmation sig A to Bob. While waiting for Bob's confirmation signature, Alice can always guranteed an option to exit B|A in case Bob deprecates A|B without sending confirmation sig B to Alice. 
 
-3. If both of the conditional states' exits have been pending for fixed n days of 'dispute period', then the ownership of the coin will be simply transfer back to the orginal owner. 
+3. If both of the conditional states' exits have been pending for fixed n days of 'dispute period', then the ownership of the coin will be simply transfer back to the orginal owner. 
 
 4. If one of the conditional state's exit is deprecated while the other one's deprecation has not been done, then extra dispute period will be executed on Layer 1 to confirm the swap.
 
