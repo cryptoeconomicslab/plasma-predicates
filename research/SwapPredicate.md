@@ -18,7 +18,7 @@ As for use cases, this predicate could nest the [Collateral Predicate](https://h
 # Architecture
 ![]() - image will be inserted later
 
-### **Swap between Alice ans Bob**
+### **Swap between Alice and Bob**
 In the end, you want these following conditions. 
 - [A->B]: Range A, which was previously owned by Alice, has to be transfered to Bob 
 - [B->A]: Range B, which was previously owned by Bob, has to be transfered to Alice
