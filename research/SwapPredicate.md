@@ -2,7 +2,7 @@ Swap Predicate
 =====
 
 ## Overview
-This document describes an architcture design of simple atomic swap predicate.
+This document describes an design of simple atomic swap predicate.
 
 ## Background
 
