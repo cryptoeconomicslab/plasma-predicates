@@ -5,13 +5,12 @@ DSL for plasma predicate
 Define a domain-specific language of predicates so that we can convey discussions more efficiently. It provides a scheme to decompose and assemble fraud proof verification logics.
 Derived from https://github.com/cryptoeconomicslab/plasma-predicates/issues/31
 
-Credits to CEL team(...) for having a daily discussion with me and also building a great foundation of predicate originally proposed by PG.
-I'm not sure what you really meant by this sentence. Please check it with your caution.
+Credits to PG who built a great foundation of the predicate.
 
 # Problems to solve
 
-It's not really efficient to describe new predicates from scratch everytime they are created. Researchers need a very high context background to understand the behavior of deprecation logic in the discussion, for example at plasma.build. Hence, I thought we should define notations for predicates so that everyone can be on the same page and smoothly share a new predicate design without any misinterpretation.
-Secondly, it's generally important to look for the more primitive way of predicate designs. In this theory, we can break down complex predicate into multiple simple predicates. That way, we will be able to generalize the way to build complex predicates more easily.
+It's not efficient to describe new predicates from scratch every time you create them. Researchers need a very profound background to understand the behavior of deprecation logic in the discussion. (for example, at plasma.build) Hence, I thought we should define notations for predicates so that everyone can smoothly be on the same page and share a new predicate design without any misinterpretation.
+Secondly, it's generally important to look for a more primitive way of predicate designs. In this theory, we can break down a complex predicate into multiple simple predicates. That way, we will be able to generalize complex predicates more easily.
 
 # How does it work in detail
 
