@@ -53,9 +53,10 @@ contract DepositERC20 is DepositStandard {
 
     function finalizeExit(
         types.Checkpoint memory _exit,
+        bytes memory _exitInclusionProof,
         uint256 depositedRangeId
     ) public {
-        bytes32 checkpointId = getCheckpointId(_exit);
+        bytes32 checkpointId = calculateCheckpointRootWithProof(_exit, _exitInclusionProof);
         // Check that we are authorized to finalize this exit
         require(_exit.stateUpdate.stateObject.predicateAddress == msg.sender, "Exit must be finalized by its predicate");
         require(checkpointFinalized(checkpointId), "Checkpoint must be finalized to finalize an exit");
